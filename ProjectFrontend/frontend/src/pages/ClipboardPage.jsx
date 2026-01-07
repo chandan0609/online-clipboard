@@ -15,7 +15,7 @@ const ClipboardPage = () => {
 
   // WebSocket connection
   useEffect(() => {
-    const socket = new WebSocket(`ws://localhost:8000/ws/clipboard/${id}`);
+    const socket = new WebSocket(`ws://localhost:8000/ws/clipboard/${id}/`);
 
     socketRef.current = socket;
 

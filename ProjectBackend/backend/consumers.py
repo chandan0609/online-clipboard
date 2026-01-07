@@ -3,21 +3,25 @@ import json
 
 class ClipboardConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        self.user_id = self.scope["url_route"]["kwargs"]["user_id"]
-        self.group_name = f"clipboard_{self.user_id}"
-
-        # Join user-specific group
+        self.clipboard_id = self.scope["url_route"]["kwargs"]["clipboard_id"]
+        self.group_name = f"clipboard_{self.clipboard_id}"
+        print("WS Connected:", self.group_name)
         await self.channel_layer.group_add(
             self.group_name,
             self.channel_name
         )
-
         await self.accept()
 
-    async def disconnect(self, close_code):
-        await self.channel_layer.group_discard(
+    async def receive(self, text_data):
+        data = json.loads(text_data)
+        content = data["content"]
+
+        await self.channel_layer.group_send(
             self.group_name,
-            self.channel_name
+            {
+                "type": "clipboard_update",
+                "content": content
+            }
         )
 
     async def clipboard_update(self, event):

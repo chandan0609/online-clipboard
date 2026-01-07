@@ -39,12 +39,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'backend',
     'rest_framework',
-    'channels'
+    'channels',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -53,7 +55,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'clipboardbackend.urls'
-
+CORS_ALLOW_ALL_ORIGINS = True
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -120,7 +122,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 #enable channels
-ASGI_APPLICATION = "config.asgi.application"
+ASGI_APPLICATION = "clipboardbackend.asgi.application"
 
 CHANNEL_LAYERS = {
     "default": {

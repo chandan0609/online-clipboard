@@ -1,25 +1,29 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 from .models import Clipboard
-from .serializers import ClipboardSerializer
 
 class ClipboardAPIView(APIView):
 
-    def get(self, request):
-        clips = Clipboard.objects.filter(user=request.user).order_by("-created_at")
-        serializer = ClipboardSerializer(clips, many=True)
-        return Response(serializer.data)
+    def get(self, request, clipboard_id):
+        clipboard, _ = Clipboard.objects.get_or_create(
+            id=clipboard_id,
+            defaults={"content": ""}
+        )
+        return Response({"content": clipboard.content})
 
-    def post(self, request):
-        serializer = ClipboardSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        clipboard = serializer.save(user=request.user)
+    def post(self, request, clipboard_id):
+        clipboard, _ = Clipboard.objects.get_or_create(
+            id=clipboard_id
+        )
+
+        clipboard.content = request.data.get("content", "")
+        clipboard.save()
 
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
-            f"clipboard_{request.user.id}",
+            f"clipboard_{clipboard_id}",
             {
                 "type": "clipboard_update",
                 "content": clipboard.content
