@@ -1,18 +1,14 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from .models import Clipboard
 from .serializers import ClipboardSerializer
 
 class ClipboardAPIView(APIView):
-    permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        clips = Clipboard.objects.filter(
-            user=request.user
-        ).order_by("-created_at")
+        clips = Clipboard.objects.filter(user=request.user).order_by("-created_at")
         serializer = ClipboardSerializer(clips, many=True)
         return Response(serializer.data)
 
@@ -26,7 +22,7 @@ class ClipboardAPIView(APIView):
             f"clipboard_{request.user.id}",
             {
                 "type": "clipboard_update",
-                "content": clipboard.content,
+                "content": clipboard.content
             }
         )
 
