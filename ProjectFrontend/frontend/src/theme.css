@@ -1,0 +1,52 @@
+/* ===== Clipboard Selection Highlight ===== */
+
+.clipboard-editor::selection {
+  background: rgba(99, 102, 241, 0.35); /* indigo */
+  color: #ffffff;
+}
+
+.clipboard-editor::-moz-selection {
+  background: rgba(99, 102, 241, 0.35);
+  color: #ffffff;
+}
+
+/* Light mode override */
+[data-theme="light"] .clipboard-editor::selection {
+  background: rgba(79, 70, 229, 0.25);
+  color: #000000;
+}
+
+[data-theme="light"] .clipboard-editor::-moz-selection {
+  background: rgba(79, 70, 229, 0.25);
+  color: #000000;
+}
+
+
+/* ===== Markdown Highlighting ===== */
+
+.clipboard-editor {
+  white-space: pre-wrap;
+}
+
+/* Headers */
+.clipboard-editor {
+  background-image: linear-gradient(transparent, transparent);
+}
+
+/* Inline code */
+.clipboard-editor {
+  caret-color: inherit;
+}
+
+/* Fake syntax coloring via font-feature */
+.clipboard-editor {
+  font-variant-ligatures: contextual;
+}
+
+/* Inline code style */
+.clipboard-editor {
+  --inline-code-bg-dark: rgba(34, 211, 238, 0.15);
+  --inline-code-bg-light: rgba(8, 145, 178, 0.12);
+}
+
+

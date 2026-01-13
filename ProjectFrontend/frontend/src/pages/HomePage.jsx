@@ -1,15 +1,29 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { v4 as uuid } from "uuid";
 import { Box, Button, Typography, Paper } from "@mui/material";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 
 const HomePage = () => {
   const navigate = useNavigate();
 
-  const createClipboard = () => {
-    const id = uuid();
-    navigate(`/clipboard/${id}`);
+  // ✅ Create clipboard via backend
+  const handleCreate = async () => {
+    try {
+      const res = await fetch("http://localhost:8000/api/create/", {
+        method: "POST",
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to create clipboard");
+      }
+
+      const data = await res.json();
+
+      // ✅ Navigate using SHORT CODE
+      navigate(`/c/${data.short_code}`);
+    } catch (err) {
+      console.error("Create clipboard failed:", err);
+    }
   };
 
   return (
@@ -44,11 +58,12 @@ const HomePage = () => {
           Create a clipboard and sync text instantly across devices.
         </Typography>
 
+        {/* ✅ Button now uses backend-generated short URL */}
         <Button
           variant="contained"
           size="large"
           fullWidth
-          onClick={createClipboard}
+          onClick={handleCreate}
           sx={{
             py: 1.5,
             fontWeight: 600,

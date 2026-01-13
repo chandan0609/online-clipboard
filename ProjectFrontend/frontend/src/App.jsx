@@ -13,7 +13,7 @@ function App({ mode, setMode }) {
       <Header mode={mode} setMode={setMode} />
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/clipboard/:id" element={<ClipboardPage />} />
+        <Route path="/c/:id" element={<ClipboardPage />} />
       </Routes>
       <Footer mode={mode} setMode={setMode} />
     </>
