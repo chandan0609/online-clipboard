@@ -4,38 +4,58 @@ import { Box, Typography } from "@mui/material";
 import { fetchClipboard } from "../services/clipboardApi";
 import { useTheme } from "@mui/material/styles";
 
-
-
-
 const ClipboardPage = () => {
-  const { id } = useParams();
+  const { id: shortCode } = useParams(); // ✅ single source of truth
   const [text, setText] = useState("");
   const socketRef = useRef(null);
 
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
 
+  /* =====================
+     FETCH INITIAL CONTENT
+     ===================== */
   useEffect(() => {
-    fetchClipboard(id)
+    if (!shortCode) return;
+
+    fetchClipboard(shortCode)
       .then((data) => setText(data.content || ""))
       .catch(console.error);
-  }, [id]);
+  }, [shortCode]);
 
+  /* =====================
+     WEBSOCKET CONNECTION
+     ===================== */
   useEffect(() => {
-    const socket = new WebSocket(`ws://localhost:8000/ws/clipboard/${id}/`);
+    if (!shortCode) return;
+
+    const socket = new WebSocket(
+      `ws://localhost:8000/ws/clipboard/${shortCode}/`
+    );
+
     socketRef.current = socket;
 
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      setText(data.content);
+      if (data.content !== undefined) {
+        setText(data.content);
+      }
+    };
+
+    socket.onerror = (err) => {
+      console.error("WebSocket error:", err);
     };
 
     return () => socket.close();
-  }, [id]);
+  }, [shortCode]); // ✅ FIXED
 
+  /* =====================
+     HANDLE TYPING
+     ===================== */
   const handleChange = (e) => {
     const newText = e.target.value;
     setText(newText);
+
     socketRef.current?.send(JSON.stringify({ content: newText }));
   };
 
@@ -50,13 +70,12 @@ const ClipboardPage = () => {
         py: 2,
       }}
     >
-      {/* Title */}
       <Typography
         variant="h6"
         fontWeight={600}
-        sx={{ mb: 1.5, color: "white" }}
+        sx={{ mb: 1.5, color: isDark ? "#fff" : "#111" }}
       >
-        {/* TypeOUT your Clipboard */}
+        Shared Clipboard
       </Typography>
 
       {/* GLASS CONTAINER */}
@@ -64,12 +83,16 @@ const ClipboardPage = () => {
         sx={{
           flexGrow: 1,
           borderRadius: "16px",
-          background: "rgba(255, 255, 255, 0.15)",
           backdropFilter: "blur(14px)",
           WebkitBackdropFilter: "blur(14px)",
-          border: "1px solid rgba(255, 255, 255, 0.25)",
           boxShadow: "0 8px 32px rgba(0, 0, 0, 0.25)",
           overflow: "hidden",
+          background: isDark
+            ? "rgba(15, 23, 42, 0.6)"
+            : "rgba(255, 255, 255, 0.6)",
+          border: isDark
+            ? "1px solid rgba(255,255,255,0.15)"
+            : "1px solid rgba(0,0,0,0.08)",
         }}
       >
         <textarea
